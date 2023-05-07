@@ -14,3 +14,5 @@ CREATE TABLE IF NOT EXISTS posts(
 SELECT name FROM person WHERE name = $1 LIMIT 1
 
 INSERT INTO person (name, password) VALUES ($1, $2)
+
+SELECT user_name, date_created, body FROM posts

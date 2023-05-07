@@ -16,11 +16,11 @@
 			</Modal>
 			<Card>
 				<List item-layout="vertical" size="large" :pagination="pagination" :data-source="listData">
-					<template #footer>
+					<!-- <template #footer>
 						<div>
 							footer part
 						</div>
-					</template>
+					</template> -->
 					<template #renderItem="{ item }">
 						<ListItem key="item.title">
 							<!-- <template #actions>
@@ -30,11 +30,12 @@
 								</span>
 							</template> -->
 							<template #extra>
-								
+								fof
 							</template>
-							<ListItemMeta :description="item.description">
+							<!-- <ListItemMeta :description="item.description"> -->
+							<ListItemMeta>
 								<template #title>
-									<a :href="item.href">{{ item.title }}</a>
+									{{ item.author }}
 								</template>
 								<!-- <template #avatar><a-avatar :src="item.avatar" /></template> -->
 							</ListItemMeta>
@@ -52,28 +53,21 @@
 	import { Card, Input, InputPassword, Layout, LayoutContent, List, ListItem, ListItemMeta, Modal } from 'ant-design-vue';
 	// import { LoadingOutlined, SearchOutlined, WarningOutlined } from '@ant-design/icons-vue';
 
-	interface Lead {
-		name: string;
-		status_id: string;
-		responsible_user_id: string;
-		price: number;
-		created_at: number | string;
-		[key: string]: any;
+	interface Post {
+		author: string;
+		date: any;
+		content: string;
 	}
 
-	const listData: Record<string, string>[] = [];
-
-	for (let i = 0; i < 23; i++) {
-		listData.push({
-			href: 'https://www.antdv.com/',
-			title: `ant design vue part ${i}`,
-			avatar: 'https://joeschmoe.io/api/v1/random',
-			description:
-				'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-			content:
-				'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-		});
-	}
+	// for (let i = 0; i < 23; i++) {
+	// 	listData.push({
+	// 		author: `ant design vue part ${i}`,
+	// 		date:
+	// 			'Ant Design, a design language for background applications, is refined by Ant UED Team.',
+	// 		content:
+	// 			'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
+	// 	});
+	// }
 
 	const pagination = {
 		onChange: (page: number) => {
@@ -103,16 +97,10 @@
 		console.log(responseData);
 	}
 
-	const columns = [
-		{ title: 'Название', dataIndex: 'name', key: 'id' },
-		{ title: 'Статус', dataIndex: 'status_id', key: 'id' },
-		{ title: 'Ответственный', dataIndex: 'responsible_user_id', key: 'id' },
-		{ title: 'Дата создания', dataIndex: 'created_at', key: 'id' },
-		{ title: 'Бюджет', dataIndex: 'price', key: 'id' },
-	];
-
+	let token: string;
+	// let password: string;
+	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
-	let password: string;
 	const modalText = ref<string>('Content of the modal');
 	const visible = ref<boolean>(true);
 	const confirmLoading = ref<boolean>(false);
@@ -135,15 +123,14 @@
 		},
 		data() {
 			return {
-				sign_up: 'Sign up',
-				sign_in: 'Sign in'
+				sign_up: 'Регистрация',
+				sign_in: 'Авторизация'
 			};
 		},
 		setup() {
 			return {
 				login,
-				password,
-      	columns,
+				// password,
 				listData,
 				pagination,
 				modalText,
@@ -152,6 +139,13 @@
 			};
 		},
 		methods: {
+			async getPosts(): Promise<void> {
+				let response = await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
+					method: 'GET',
+					headers: { 'Origin': 'http://localhost:8080/' }
+				});
+				listData.value = await response.json();
+			},
 			// async search(event: {[key: string]: any; srcElement: {_value: string};}): Promise<void> {
 			// 	await this.$nextTick();
 			// 	await this.$nextTick(); // одного иногда не хвататет, чтобы получилось нужное значение.
@@ -178,9 +172,9 @@
 			// 	leadsData.value = responseData;
 			// },
 
-			refocus() {
-				this.$nextTick(() => (this.$refs.inputField as any).focus());
-			},
+			// refocus() {
+			// 	this.$nextTick(() => (this.$refs.inputField as any).focus());
+			// },
 			async handleIn() {
       console.log((this.$refs.user as any).input.value)
 
@@ -195,7 +189,7 @@
 			confirmLoading.value = false;
 			setTimeout(() => {
 				visible.value = true;
-			}, 6000);
+			}, 60000);
     	},
 			async handleUp() {
       console.log((this.$refs.user as any).input.value)
@@ -215,6 +209,7 @@
     	},
 		},
 		mounted() {
+			this.getPosts();
     	// if (this.$refs.inputField) {this.search({srcElement: {_value: ''}})};
   	},
 	});

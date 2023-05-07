@@ -7,10 +7,10 @@
 $ git clone https://github.com/Vladimir2ht/AMOCRM-NEST-VUE-TS.git ./Blog
 $ cd Blog
 $ cd front
-$ npm install
+$ npm i
 $ cd ..
-$ cd front
-$ npm install
+$ cd back
+$ npm i
 ```
 Для просмотра проекта в режиме разработки нужно в каждой папке (front, back) запустить скрипт
 ```

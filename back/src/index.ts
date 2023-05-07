@@ -2,18 +2,18 @@ import express from "express";
 import cors from "cors";
 // import fs from "fs";
 // import path from "path";
-// import axios from "axios";
-import router from './router'
+import postsRouter from './posts/postsRouter'
+import authRouter from './auth/authRouter'
 
 const app = express(),
 			host = '192.168.0.100',
-			port = 4000,
-			ammo_URL = 'https://gacob64819.amocrm.ru/oauth2/access_token'; //Формируем URL для запроса
+			port = 4000;
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/auth', router)
+app.use('/posts', postsRouter)
+app.use('/auth', authRouter)
 
 app.get('/', (req, res) => {
 
