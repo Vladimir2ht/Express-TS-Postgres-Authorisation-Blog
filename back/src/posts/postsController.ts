@@ -1,3 +1,4 @@
+import fs from "fs";
 import db from "../db";
 
 class postsController {
@@ -40,7 +41,12 @@ class postsController {
 
 	async delete(req, res) {
 		try {
-
+			console.log(req.query);
+			
+			const dbRequest = await db.query('DELETE FROM posts WHERE id = $1 RETURNING *', [req.query.id]);
+			if (dbRequest.rows[0].content_type !== 'TEXT') {
+				fs.rm(dbRequest.rows[0].body, (err) => console.log(err))
+			}
 			
 		} catch (error) {
 			console.log(error);

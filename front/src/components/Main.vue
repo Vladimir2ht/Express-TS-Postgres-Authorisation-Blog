@@ -11,16 +11,20 @@
 				@ok="handleIn"
 				@cancel="handleUp"
 			>
-				<Input v-model="login" ref="user" placeholder="Basic usage" />
+				<Input ref="user" placeholder="Basic usage" />
+				<!-- <Input v-model="login" ref="user" placeholder="Basic usage" /> -->
 				<InputPassword placeholder="Basic usage" />
 			</Modal>
 			<Card>
 				<template #title>
-					<Button @click="addPost" type="primary">Добавить пост</Button>
+					<Button @click="newPost" type="primary">Добавить пост</Button>
+					{{selectedPostDate}}
 				</template>
+				<template #extra>{{login}}</template>
 				<Textarea ref="text" auto-size placeholder="Пост с текстом"/>
 				<Input ref="file" type="file" placeholder="Пост с файлом" :max="1" />
 				<!-- <Input ref="user" type="file" placeholder="Basic usage" :maxlength="1" /> -->
+				<RadioGroup @change="selectPost">
 				<List item-layout="vertical" size="large" :pagination="pagination" :data-source="listData">
 					<!-- <template #footer>
 						<div>
@@ -36,7 +40,7 @@
 								</span>
 							</template> -->
 							<template #extra>
-								fof
+								<Radio :value="item.id">
 							</template>
 							<!-- <ListItemMeta :description="item.description"> -->
 							<ListItemMeta>
@@ -48,6 +52,7 @@
 						</ListItem>
 					</template>
 				</List>
+				</RadioGroup>
 			</Card>
 		</LayoutContent>
 	</Layout>
@@ -67,6 +72,8 @@
 		Input,
 		InputPassword,
 		Textarea,
+    Radio,
+    RadioGroup,
 	} from 'ant-design-vue';
 	// import { LoadingOutlined, SearchOutlined, WarningOutlined } from '@ant-design/icons-vue';
 
@@ -98,7 +105,7 @@
 	let token: string;
 	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
-	// const visible = ref<boolean>(false);
+	const selectedPostDate = ref<string>('');
 	const visible = ref<boolean>(true);
 	const confirmLoading = ref<boolean>(false);
 
@@ -116,6 +123,8 @@
 			Input,
 			InputPassword,
 			Textarea,
+			Radio,
+			RadioGroup,
 		},
 		data() {
 			return {
@@ -126,6 +135,7 @@
 		setup() {
 			return {
 				login,
+				selectedPostDate,
 				listData,
 				pagination,
 				visible,
@@ -139,9 +149,10 @@
 					headers: { 'Origin': 'http://localhost:8080/' }
 				});
 				listData.value = await response.json();
+				console.log(listData.value);
 			},
 
-			async addPost() {
+			async newPost() {
 				console.log('token', token);
 				
 				const formData = new FormData();
@@ -158,6 +169,15 @@
 				});
 
 				await this.getPosts();
+			},
+
+			async selectPost(e: Event) {
+				console.log(e);
+				
+			},
+
+			async deletePost() {
+
 			},
 
 			async authRequest(action: string) {
@@ -187,7 +207,7 @@
 				
 				if (responseData.token) {
 					token = responseData.token;
-
+					login.value = authData.name;
 					confirmLoading.value = false;
 					visible.value = false;
 					setTimeout(() => {

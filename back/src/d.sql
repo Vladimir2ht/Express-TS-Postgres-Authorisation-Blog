@@ -17,3 +17,7 @@ SELECT name FROM person WHERE name = $1 LIMIT 1
 INSERT INTO person (name, password) VALUES ($1, $2)
 
 SELECT user_name, date_created, body FROM posts
+
+UPDATE posts SET body = $1, content_type = $2 WHERE id = $3
+
+DELETE FROM posts WHERE id = $1 RETURNING *
