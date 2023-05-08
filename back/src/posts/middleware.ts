@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import key from "./tokenKey";
-import db from "./db";
+import key from "../tokenKey";
+import db from "../db";
 
 export default async function (req, res, next) {
 	try {
@@ -13,7 +13,7 @@ export default async function (req, res, next) {
 		// 	return res.status(403).json({message: 'Wrong authorization token'});
 		// }
 		
-		const person = (jwt.verify(req.headers.authorization.split.split(' ')[1], key) as {name: string, password: string});
+		const person = (jwt.verify(req.headers.authorization.split(' ')[1], key) as {name: string, password: string});
 		console.log(person);
 		
 
@@ -22,7 +22,7 @@ export default async function (req, res, next) {
 			[person.name, person.password]
 		);
 		
-		if (dbRequest.rowCount !== 1) res.json({message: 'not your token'})
+		if (dbRequest.rowCount !== 1) return res.json({message: 'not your token'})
 		console.log(req.headers.authorization = person.name);
 		next();
 	} catch (error) {

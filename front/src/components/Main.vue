@@ -18,7 +18,9 @@
 				<template #title>
 					<Button @click="addPost" type="primary">Добавить пост</Button>
 				</template>
-				<Textarea ref="text" auto-size/>
+				<Textarea ref="text" auto-size placeholder="Пост с текстом"/>
+				<Input ref="file" type="file" placeholder="Пост с файлом" :max="1" />
+				<!-- <Input ref="user" type="file" placeholder="Basic usage" :maxlength="1" /> -->
 				<List item-layout="vertical" size="large" :pagination="pagination" :data-source="listData">
 					<!-- <template #footer>
 						<div>
@@ -26,7 +28,7 @@
 						</div>
 					</template> -->
 					<template #renderItem="{ item }">
-						<ListItem key="item.title">
+						<ListItem key="item.id">
 							<!-- <template #actions>
 								<span v-for="{ type, text } in actions" :key="type">
 									<component :is="type" style="margin-right: 8px" />
@@ -41,7 +43,6 @@
 								<template #title>
 									{{ item.author }}
 								</template>
-								<!-- <template #avatar><a-avatar :src="item.avatar" /></template> -->
 							</ListItemMeta>
 							{{ item.content }}
 						</ListItem>
@@ -54,7 +55,19 @@
 
 <script lang="ts">
 	import { defineComponent, ref } from 'vue';
-	import { Button, Card, Input, InputPassword, Layout, LayoutContent, List, ListItem, ListItemMeta, Modal, Textarea } from 'ant-design-vue';
+	import { 
+		Layout,
+		LayoutContent,
+		Card,
+		List,
+		ListItem,
+		ListItemMeta,
+		Modal,
+		Button,
+		Input,
+		InputPassword,
+		Textarea,
+	} from 'ant-design-vue';
 	// import { LoadingOutlined, SearchOutlined, WarningOutlined } from '@ant-design/icons-vue';
 
 	interface Post {
@@ -82,32 +95,10 @@
 		pageSize: 20,
 	};
 
-	async function authRequest(params: {name: string, password?: string}, action: string) {
-		let pass = document.querySelector('input[type="password"]')
-		if (pass) {
-			params.password = (pass as any).value;
-		} else {
-			params.password = document.querySelectorAll('input')[1].value;
-		}
-		let url = 'http://vladimir2ht.ddns.net:4000/auth/' + action;
-		console.log(params)
-		const response: Response = await fetch(url, {
-			method: 'post',
-			body: JSON.stringify(params),
-			headers: { 
-				Origin: 'http://localhost:8080/',
-				"Content-type":  "application/json",
-			},
-		});
-		const responseData = await response.json();
-		console.log(responseData);
-	}
-
 	let token: string;
-	// let password: string;
 	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
-	const modalText = ref<string>('Content of the modal');
+	// const visible = ref<boolean>(false);
 	const visible = ref<boolean>(true);
 	const confirmLoading = ref<boolean>(false);
 
@@ -135,76 +126,79 @@
 		setup() {
 			return {
 				login,
-				// password,
 				listData,
 				pagination,
-				modalText,
 				visible,
 				confirmLoading,
 			};
 		},
 		methods: {
-			async getPosts(): Promise<void> {
+			async getPosts() {
 				let response = await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
 					method: 'GET',
 					headers: { 'Origin': 'http://localhost:8080/' }
 				});
 				listData.value = await response.json();
 			},
+
 			async addPost() {
 				console.log('token', token);
 				
-
-				let formData = new FormData();
-				// formData.append('file', blob);
-				console.log(this.$refs.text);
-				
-				formData.append('text', (this.$refs.text as any).input.value);
+				const formData = new FormData();
+				formData.append('file', (this.$refs.file as any).input.files[0]);
+				formData.append('text', (this.$refs.text as any).resizableTextArea.textArea.value);
 
 				await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
-					method: "PUT",
+					method: 'PUT',
 					headers: {
-						"Content-Type": "multipart/form-data",
 						Origin: 'http://localhost:8080/',
 						Authorization: 'Bearer ' + token,
 					},
 					body: formData
 				});
 
-				this.getPosts();
+				await this.getPosts();
 			},
-			async handleIn() {
-				console.log((this.$refs.user as any).input.value)
 
-				const authData: {name: string} = {
+			async authRequest(action: string) {
+				confirmLoading.value = true;
+
+				const authData: {name: string, password?: string} = {
 					name: (this.$refs.user as any).input.value
 				};
+				const pass = document.querySelector('input[type="password"]')
+				if (pass) {
+					authData.password = (pass as any).value;
+				} else {
+					authData.password = document.querySelectorAll('input')[1].value;
+				}
+				if (!(authData.name && authData.password)) return confirmLoading.value = false
+				console.log(authData)
+				
+				const responseData = await fetch('http://vladimir2ht.ddns.net:4000/auth/' + action, {
+					method: 'post',
+					body: JSON.stringify(authData),
+					headers: { 
+						Origin: 'http://localhost:8080/',
+						"Content-type":  "application/json",
+					},
+				}).then(res => res.json());
+				console.log(responseData);
+				
+				if (responseData.token) {
+					token = responseData.token;
 
-				authRequest(authData, 'log');
+					confirmLoading.value = false;
+					visible.value = false;
+					setTimeout(() => {
+						visible.value = true;
+					}, 600000);
+				}
 
-				confirmLoading.value = true;
-				visible.value = false;
-				confirmLoading.value = false;
-				setTimeout(() => {
-					visible.value = true;
-				}, 60000);
-    	},
-			async handleUp() {
-				console.log((this.$refs.user as any).input.value)
+			},
 
-				const authData: {name: string} = {
-					name: (this.$refs.user as any).input.value
-				};
-
-				authRequest(authData, 'reg');
-
-				confirmLoading.value = true;
-				visible.value = false;
-				confirmLoading.value = false;
-				setTimeout(() => {
-					visible.value = true;
-				}, 60000);
-    	},
+			async handleIn() {this.authRequest('log')},
+			async handleUp() {this.authRequest('reg')},
 		},
 		mounted() {
 			this.getPosts();
