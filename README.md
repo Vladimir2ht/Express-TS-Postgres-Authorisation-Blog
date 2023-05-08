@@ -4,7 +4,7 @@
 
 Для установки проекта необходимо в каждой папке (front, back) запустить скрипт npm i.
 ```
-$ git clone https://github.com/Vladimir2ht/AMOCRM-NEST-VUE-TS.git ./Blog
+$ git clone https://github.com/Vladimir2ht/Express-TS-Postgres-Authorisation-Blog.git ./Blog
 $ cd Blog
 $ cd front
 $ npm i
@@ -16,3 +16,5 @@ $ npm i
 ```
 $ npm run dev
 ```
+
+Зайти на сайт и посмотреть на работу развёрнутого приложения можно по ссылке vladimir2ht.ddns.net:4000

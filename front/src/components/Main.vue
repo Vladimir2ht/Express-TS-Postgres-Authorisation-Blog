@@ -15,6 +15,10 @@
 				<InputPassword placeholder="Basic usage" />
 			</Modal>
 			<Card>
+				<template #title>
+					<Button @click="addPost" type="primary">Добавить пост</Button>
+				</template>
+				<Textarea ref="text" auto-size/>
 				<List item-layout="vertical" size="large" :pagination="pagination" :data-source="listData">
 					<!-- <template #footer>
 						<div>
@@ -50,13 +54,15 @@
 
 <script lang="ts">
 	import { defineComponent, ref } from 'vue';
-	import { Card, Input, InputPassword, Layout, LayoutContent, List, ListItem, ListItemMeta, Modal } from 'ant-design-vue';
+	import { Button, Card, Input, InputPassword, Layout, LayoutContent, List, ListItem, ListItemMeta, Modal, Textarea } from 'ant-design-vue';
 	// import { LoadingOutlined, SearchOutlined, WarningOutlined } from '@ant-design/icons-vue';
 
 	interface Post {
 		author: string;
 		date: any;
+		id: any;
 		content: string;
+		content_type: string;
 	}
 
 	// for (let i = 0; i < 23; i++) {
@@ -115,16 +121,15 @@
 			ListItem,
 			ListItemMeta,
 			Modal,
+			Button,
 			Input,
 			InputPassword,
-			// WarningOutlined,
-			// SearchOutlined,
-			// LoadingOutlined,
+			Textarea,
 		},
 		data() {
 			return {
 				sign_up: 'Регистрация',
-				sign_in: 'Авторизация'
+				sign_in: 'Авторизация',
 			};
 		},
 		setup() {
@@ -146,71 +151,63 @@
 				});
 				listData.value = await response.json();
 			},
-			// async search(event: {[key: string]: any; srcElement: {_value: string};}): Promise<void> {
-			// 	await this.$nextTick();
-			// 	await this.$nextTick(); // одного иногда не хвататет, чтобы получилось нужное значение.
-			// 	let url: string = event.srcElement._value;
-
-			// 	if (url && url.length < 3) {
-			// 		lessSymbols.value = true;
-			// 		return
-			// 	}	else lessSymbols.value = false;
-			// 	loading.value = true;
-
-			// 	url = 'http://vladimir2ht.ddns.net:4000/' + ((url) ? '?q=' + url : '');
-			// 	const response: Response = await fetch(url, {
-			// 		method: 'GET',
-			// 		headers: { 'Origin': 'http://localhost:8080/' }
-			// 	});
-			// 	const responseData: Lead[] = await response.json();
+			async addPost() {
+				console.log('token', token);
 				
-			// 	responseData.forEach(lead => {
-			// 		lead.created_at = new Date((lead.created_at as number) * 1000).toLocaleDateString();
-			// 	});
-				
-			// 	loading.value = false;
-			// 	leadsData.value = responseData;
-			// },
 
-			// refocus() {
-			// 	this.$nextTick(() => (this.$refs.inputField as any).focus());
-			// },
+				let formData = new FormData();
+				// formData.append('file', blob);
+				console.log(this.$refs.text);
+				
+				formData.append('text', (this.$refs.text as any).input.value);
+
+				await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
+					method: "PUT",
+					headers: {
+						"Content-Type": "multipart/form-data",
+						Origin: 'http://localhost:8080/',
+						Authorization: 'Bearer ' + token,
+					},
+					body: formData
+				});
+
+				this.getPosts();
+			},
 			async handleIn() {
-      console.log((this.$refs.user as any).input.value)
+				console.log((this.$refs.user as any).input.value)
 
-			const authData: {name: string} = {
-				name: (this.$refs.user as any).input.value
-			};
+				const authData: {name: string} = {
+					name: (this.$refs.user as any).input.value
+				};
 
-			authRequest(authData, 'log');
+				authRequest(authData, 'log');
 
-      confirmLoading.value = true;
-			visible.value = false;
-			confirmLoading.value = false;
-			setTimeout(() => {
-				visible.value = true;
-			}, 60000);
+				confirmLoading.value = true;
+				visible.value = false;
+				confirmLoading.value = false;
+				setTimeout(() => {
+					visible.value = true;
+				}, 60000);
     	},
 			async handleUp() {
-      console.log((this.$refs.user as any).input.value)
+				console.log((this.$refs.user as any).input.value)
 
-			const authData: {name: string} = {
-				name: (this.$refs.user as any).input.value
-			};
+				const authData: {name: string} = {
+					name: (this.$refs.user as any).input.value
+				};
 
-			authRequest(authData, 'reg');
+				authRequest(authData, 'reg');
 
-      confirmLoading.value = true;
-			visible.value = false;
-			confirmLoading.value = false;
-			setTimeout(() => {
-				visible.value = true;
-			}, 6000);
+				confirmLoading.value = true;
+				visible.value = false;
+				confirmLoading.value = false;
+				setTimeout(() => {
+					visible.value = true;
+				}, 60000);
     	},
 		},
 		mounted() {
 			this.getPosts();
-    	// if (this.$refs.inputField) {this.search({srcElement: {_value: ''}})};
   	},
 	});
 </script>

@@ -1,9 +1,8 @@
 import express from "express";
 import cors from "cors";
-// import fs from "fs";
-// import path from "path";
 import postsRouter from './posts/postsRouter'
 import authRouter from './auth/authRouter'
+import frontRouter from "./frontRouter";
 
 const app = express(),
 			host = '192.168.0.100',
@@ -14,15 +13,9 @@ app.use(express.json());
 
 app.use('/posts', postsRouter)
 app.use('/auth', authRouter)
+app.use('/', frontRouter)
 
-app.get('/', (req, res) => {
-
-	console.log('+')
-
-	res.status(200).send('absd');
-});
-
-app.use((req, res, next) => {
+app.use((req, res) => {
 	res.status(404).type('text/plain')
 	res.send('Not found')
 })
