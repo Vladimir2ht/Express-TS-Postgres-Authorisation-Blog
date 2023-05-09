@@ -30,7 +30,7 @@ class authController {
 				);
 				console.log(dbRequest);
 				res.json({token: generateAccessToken(req.body.name, req.body.password)})
-			};
+			} else return res.status(205).json({message: 'Wrong user or password'});
 			
 			
 		} catch (error) {
@@ -51,8 +51,9 @@ class authController {
 			
 			if (dbRequest.rowCount === 1) res.json({
 				token: generateAccessToken(req.body.name, req.body.password)
-			});
-			
+			})
+			else return res.status(205).json({message: 'Wrong user or password'});
+
 		} catch (error) {
 			console.log(error);
 			return res.status(400).json({message: 'db error', error});

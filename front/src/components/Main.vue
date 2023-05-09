@@ -18,14 +18,21 @@
 			<Card>
 				<template #title>
 					<Button @click="newPost" type="primary">Добавить пост</Button>
+					<Button @click="newPost" type="primary">Изменить пост</Button>
 					{{selectedPostDate}}
 				</template>
 				<template #extra>{{login}}</template>
 				<Textarea ref="text" auto-size placeholder="Пост с текстом"/>
 				<Input ref="file" type="file" placeholder="Пост с файлом" :max="1" />
 				<!-- <Input ref="user" type="file" placeholder="Basic usage" :maxlength="1" /> -->
-				<RadioGroup @change="selectPost">
-				<List item-layout="vertical" size="large" :pagination="pagination" :data-source="listData">
+				<!-- <RadioGroup @change="selectPost" :value="selectedPost"  name="radioGroup"> -->
+				<List
+					@change="selectPost"
+					:pagination="pagination"
+					:data-source="listData"
+					item-layout="vertical"
+					size="large"
+				>
 					<!-- <template #footer>
 						<div>
 							footer part
@@ -33,26 +40,32 @@
 					</template> -->
 					<template #renderItem="{ item }">
 						<ListItem key="item.id">
+						<!-- <ListItem key="item.id" style="width: 110px"> -->
 							<!-- <template #actions>
 								<span v-for="{ type, text } in actions" :key="type">
 									<component :is="type" style="margin-right: 8px" />
 									{{ text }}
 								</span>
 							</template> -->
-							<template #extra>
-								<Radio :value="item.id">
+							<template #extra v-if="item.user_name === login">
+								<!-- <Checkbox :value="item.id" auto-focus /> -->
+								<!-- <Radio :value="item.id" :checked="item.id === selectedPost"/> -->
+								<Radio :value="item.id" :checked="item.checked"/>
+								<!-- <Radio :value="item.id" :checked="true"/> -->
+								<Button type="primary" shape="circle" danger @click="deletePost(item.id)" :size="small">
+									<template #icon><DeleteOutlined /></template>
+								</Button>
 							</template>
-							<!-- <ListItemMeta :description="item.description"> -->
-							<ListItemMeta>
+							<ListItemMeta :description="item.date_created">
 								<template #title>
-									{{ item.author }}
+									{{ item.user_name }}
 								</template>
 							</ListItemMeta>
-							{{ item.content }}
+							{{ item.body }}
 						</ListItem>
 					</template>
 				</List>
-				</RadioGroup>
+				<!-- </RadioGroup> -->
 			</Card>
 		</LayoutContent>
 	</Layout>
@@ -72,18 +85,20 @@
 		Input,
 		InputPassword,
 		Textarea,
-    Radio,
     RadioGroup,
+    Radio,
+    Checkbox,
 	} from 'ant-design-vue';
-	// import { LoadingOutlined, SearchOutlined, WarningOutlined } from '@ant-design/icons-vue';
+	import { DeleteOutlined } from '@ant-design/icons-vue';
 
 	interface Post {
-		author: string;
-		date: any;
-		id: any;
-		content: string;
-		content_type: string;
-	}
+		user_name: string,
+		date_created: Date,
+		id: number,
+		body: string,
+		content_type: string,
+		checked: boolean,
+	};
 
 	// for (let i = 0; i < 23; i++) {
 	// 	listData.push({
@@ -105,7 +120,10 @@
 	let token: string;
 	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
-	const selectedPostDate = ref<string>('');
+	// const selectedPostDate = ref<string>('');
+	// const oldSelectedPost = ref<EventTarget & {checked: boolean}>();
+	let oldSelectedPost: number;
+	const selectedPost = ref<number>(0);
 	const visible = ref<boolean>(true);
 	const confirmLoading = ref<boolean>(false);
 
@@ -123,24 +141,32 @@
 			Input,
 			InputPassword,
 			Textarea,
-			Radio,
 			RadioGroup,
+			Radio,
+			Checkbox,
+			DeleteOutlined,
 		},
 		data() {
 			return {
 				sign_up: 'Регистрация',
 				sign_in: 'Авторизация',
+				small: 'small',
 			};
 		},
 		setup() {
 			return {
 				login,
-				selectedPostDate,
+				selectedPost,
 				listData,
 				pagination,
 				visible,
 				confirmLoading,
 			};
+		},
+		computed: {
+			selectedPostDate() {
+				return selectedPost.value ? listData.value[selectedPost.value].date_created : ''
+			}
 		},
 		methods: {
 			async getPosts() {
@@ -148,7 +174,11 @@
 					method: 'GET',
 					headers: { 'Origin': 'http://localhost:8080/' }
 				});
-				listData.value = await response.json();
+				listData.value = (await response.json())
+					.map((post: Post | Omit<Post, 'chesked'>): Post => {
+						post.checked = false;
+						return post
+					});
 				console.log(listData.value);
 			},
 
@@ -171,13 +201,37 @@
 				await this.getPosts();
 			},
 
-			async selectPost(e: Event) {
-				console.log(e);
+			async selectPost(e: Event & {target:{value: number, type: string}}) {
+				// console.log(e.target);
+				if (e.target.type !== 'radio') return
+				console.log(e.target.value);
+				let post = listData.value.findIndex((post: Post) => post.id == e.target.value)
+				console.log(post);
+				listData.value[selectedPost.value].checked = false;
+				
+				selectedPost.value = post;
+				listData.value[post].checked = true;
+				listData.value = [...listData.value];
+				// selectedPost.value = e.target.value
+				
+				// console.log(selectedPost.value = e.target.value);
+				console.log(selectedPost.value);
+				// console.log(selectedPostDate.value);
 				
 			},
 
-			async deletePost() {
-
+			async deletePost(id: number) {
+				console.log(id);
+				console.log(await fetch('http://vladimir2ht.ddns.net:4000/posts?id=' + id, {
+					method: 'delete',
+					headers: {
+						Origin: 'http://localhost:8080/',
+						Authorization: 'Bearer ' + token,
+					},
+				}));
+				
+				// убрать
+				await this.getPosts();
 			},
 
 			async authRequest(action: string) {
@@ -202,7 +256,11 @@
 						Origin: 'http://localhost:8080/',
 						"Content-type":  "application/json",
 					},
-				}).then(res => res.json());
+				}).then(res => {
+					if (res.status === 205) {
+						confirmLoading.value = false
+						return {token: false}
+					} else return res.json()});
 				console.log(responseData);
 				
 				if (responseData.token) {
@@ -231,7 +289,7 @@
 		padding: 5%;
 		
 		.ant-layout-content {
-			min-width: 625px;
+			min-width: 425px;
 		}
 	}
 </style>
