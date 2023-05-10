@@ -22,5 +22,5 @@ app.use((req, res) => {
 
 app.listen(port, host, () => {
 	console.log(`Server listens http://${host}:${port}`)
-	console.log('Server listens vladimir2ht.ddns.net:4000')
+	console.log('Server listens vladimir2ht.ddns.net:' + port)
 })

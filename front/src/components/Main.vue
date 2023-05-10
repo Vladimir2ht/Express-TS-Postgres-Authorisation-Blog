@@ -32,11 +32,6 @@
 					item-layout="vertical"
 					size="large"
 				>
-					<!-- <template #footer>
-						<div>
-							footer part
-						</div>
-					</template> -->
 					<template #renderItem="{ item }">
 						<ListItem key="item.id">
 						<!-- <ListItem key="item.id" style="width: 110px"> -->
