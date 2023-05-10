@@ -10,16 +10,13 @@ class authController {
 
 	async registration(req, res) {
 		try {
-			console.log('reg', req.body);
-			console.log('reg1', req.params);
 			
-			if (!req.body.name) return res.json({message: 'where login?'});
+			if (!(req.body.name && req.body.password)) return res.json({message: 'where login?'});
 			
 			let dbRequest = await db.query(
 				'SELECT name FROM person WHERE name = $1 LIMIT 1',
 				[req.body.name]
 			);
-			console.log(dbRequest);
 			
 			if (dbRequest.rowCount === 0) {
 				console.log(req.body.name, req.body.password);
@@ -42,7 +39,7 @@ class authController {
 
 	async login(req, res) {
 		try {
-			if (!req.body.name) return res.json({message: 'where login'});
+			if (!(req.body.name && req.body.password)) return res.json({message: 'where login'});
 			
 			const dbRequest = await db.query(
 				'SELECT name FROM person WHERE name = $1 AND password = $2 LIMIT 1',

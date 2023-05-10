@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS posts(
 
 SELECT name FROM person WHERE name = $1 LIMIT 1
 
+SELECT * FROM posts
+
 INSERT INTO person (name, password) VALUES ($1, $2)
 
-SELECT user_name, date_created, body FROM posts
-
-UPDATE posts SET body = $1, content_type = $2 WHERE id = $3 AND user_name = $4
+UPDATE posts x SET body = $1, content_type = $2 FROM posts y WHERE x.id = $3 AND x.id = y.id AND x.user_name = $4 RETURNING y.content_type, y.body
 
 DELETE FROM posts WHERE id = $1 RETURNING *

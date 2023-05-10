@@ -12,13 +12,12 @@
 				@cancel="handleUp"
 			>
 				<Input ref="user" placeholder="Basic usage" />
-				<!-- <Input v-model="login" ref="user" placeholder="Basic usage" /> -->
 				<InputPassword placeholder="Basic usage" />
 			</Modal>
 			<Card>
 				<template #title>
 					<Button @click="newPost" type="primary">Добавить пост</Button>
-					<Button @click="newPost" type="primary">Изменить пост</Button>
+					<Button @click="newPost(e, true)" type="primary">Изменить пост</Button>
 					{{selectedPostDate}}
 				</template>
 				<template #extra>{{login}}</template>
@@ -48,10 +47,8 @@
 								</span>
 							</template> -->
 							<template #extra v-if="item.user_name === login">
-								<!-- <Checkbox :value="item.id" auto-focus /> -->
 								<!-- <Radio :value="item.id" :checked="item.id === selectedPost"/> -->
 								<Radio :value="item.id" :checked="item.checked"/>
-								<!-- <Radio :value="item.id" :checked="true"/> -->
 								<Button type="primary" shape="circle" danger @click="deletePost(item.id)" :size="small">
 									<template #icon><DeleteOutlined /></template>
 								</Button>
@@ -87,7 +84,6 @@
 		Textarea,
     RadioGroup,
     Radio,
-    Checkbox,
 	} from 'ant-design-vue';
 	import { DeleteOutlined } from '@ant-design/icons-vue';
 
@@ -100,16 +96,6 @@
 		checked: boolean,
 	};
 
-	// for (let i = 0; i < 23; i++) {
-	// 	listData.push({
-	// 		author: `ant design vue part ${i}`,
-	// 		date:
-	// 			'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-	// 		content:
-	// 			'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-	// 	});
-	// }
-
 	const pagination = {
 		onChange: (page: number) => {
 			console.log(page);
@@ -120,9 +106,6 @@
 	let token: string;
 	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
-	// const selectedPostDate = ref<string>('');
-	// const oldSelectedPost = ref<EventTarget & {checked: boolean}>();
-	let oldSelectedPost: number;
 	const selectedPost = ref<number>(0);
 	const visible = ref<boolean>(true);
 	const confirmLoading = ref<boolean>(false);
@@ -143,7 +126,6 @@
 			Textarea,
 			RadioGroup,
 			Radio,
-			Checkbox,
 			DeleteOutlined,
 		},
 		data() {
@@ -172,7 +154,7 @@
 			async getPosts() {
 				let response = await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
 					method: 'GET',
-					headers: { 'Origin': 'http://localhost:8080/' }
+					headers: { 'Origin': 'vladimir2ht.ddns.net:4000' }
 				});
 				listData.value = (await response.json())
 					.map((post: Post | Omit<Post, 'chesked'>): Post => {
@@ -182,17 +164,18 @@
 				console.log(listData.value);
 			},
 
-			async newPost() {
-				console.log('token', token);
-				
+			async newPost(e?: Event, change: boolean = false) {
 				const formData = new FormData();
 				formData.append('file', (this.$refs.file as any).input.files[0]);
 				formData.append('text', (this.$refs.text as any).resizableTextArea.textArea.value);
+				if (change) {
+					formData.append('id', listData.value[selectedPost.value].id.toString());
+				};
 
 				await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
-					method: 'PUT',
+					method: change ? 'PATCH' : 'PUT',
 					headers: {
-						Origin: 'http://localhost:8080/',
+						Origin: 'vladimir2ht.ddns.net:4000',
 						Authorization: 'Bearer ' + token,
 					},
 					body: formData
@@ -208,27 +191,20 @@
 				let post = listData.value.findIndex((post: Post) => post.id == e.target.value)
 				console.log(post);
 				listData.value[selectedPost.value].checked = false;
-				
 				selectedPost.value = post;
 				listData.value[post].checked = true;
 				listData.value = [...listData.value];
-				// selectedPost.value = e.target.value
-				
-				// console.log(selectedPost.value = e.target.value);
 				console.log(selectedPost.value);
-				// console.log(selectedPostDate.value);
-				
 			},
 
 			async deletePost(id: number) {
-				console.log(id);
-				console.log(await fetch('http://vladimir2ht.ddns.net:4000/posts?id=' + id, {
+				await fetch('http://vladimir2ht.ddns.net:4000/posts?id=' + id, {
 					method: 'delete',
 					headers: {
-						Origin: 'http://localhost:8080/',
+						Origin: 'vladimir2ht.ddns.net:4000',
 						Authorization: 'Bearer ' + token,
 					},
-				}));
+				});
 				
 				// убрать
 				await this.getPosts();
@@ -290,6 +266,10 @@
 		
 		.ant-layout-content {
 			min-width: 425px;
+			
+			.ant-card-head button {
+				margin-right: 20px;
+			}
 		}
 	}
 </style>

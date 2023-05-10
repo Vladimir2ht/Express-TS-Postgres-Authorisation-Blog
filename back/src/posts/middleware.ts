@@ -9,9 +9,6 @@ export default async function (req, res, next) {
 		if (!req.headers.authorization) {
 			return res.status(403).json({message: 'Wrong authorization token'});
 		}
-		// if (!req.headers.authorization.split.split(' ')[1]) {
-		// 	return res.status(403).json({message: 'Wrong authorization token'});
-		// }
 		
 		const person = (jwt.verify(req.headers.authorization.split(' ')[1], key) as {name: string, password: string});
 		console.log(person);
