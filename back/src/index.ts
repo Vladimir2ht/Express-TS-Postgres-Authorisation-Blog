@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use('/posts', postsRouter)
 app.use('/auth', authRouter)
-// app.use('/', frontRouter)
+app.use('/', frontRouter)
 
 app.use((req, res) => {
 	res.status(404).type('text/plain')
