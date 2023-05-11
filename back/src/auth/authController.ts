@@ -1,59 +1,63 @@
 import db from "../db";
 import jwt from "jsonwebtoken";
 import key from "../tokenKey";
+import { errorFunction } from "../helpers";
 
-function generateAccessToken(name: string, password: string): string {
-	return jwt.sign({name, password}, key);
+function generateAccessToken(name: string, password: string, res): void {
+		res.json({token: jwt.sign({name, password}, key)})
+		return
 }
+
+function wrongAuth(res) {return res.status(205).json({message: 'Wrong user or password'})};
+function whereLogin(res) {return res.json({message: 'where login'})};
+function haveEmpty(name: string, password: string): boolean {return !(name && password)};
 
 class authController {
 
 	async registration(req, res) {
 		try {
-			
-			if (!(req.body.name && req.body.password)) return res.json({message: 'where login?'});
+			console.log('reg');
+			const name = req.body.name;
+			const password = req.body.password;
+			if (haveEmpty(name, password)) return whereLogin(res);
 			
 			let dbRequest = await db.query(
 				'SELECT name FROM person WHERE name = $1 LIMIT 1',
-				[req.body.name]
+				[name]
 			);
 			
 			if (dbRequest.rowCount === 0) {
-				console.log(req.body.name, req.body.password);
-				
 				dbRequest = await db.query(
 					'INSERT INTO person (name, password) VALUES ($1, $2)',
-					[req.body.name, req.body.password]
+					[name, password]
 				);
 				console.log(dbRequest);
-				res.json({token: generateAccessToken(req.body.name, req.body.password)})
-			} else return res.status(205).json({message: 'Wrong user or password'});
+				generateAccessToken(name, password, res);
+			} else wrongAuth(res);
 			
 			
 		} catch (error) {
-			console.log(error);
-			return res.status(400).json({message: 'db error', error});
+			return errorFunction(res, error);
 		}
 
 	}
 
 	async login(req, res) {
 		try {
-			if (!(req.body.name && req.body.password)) return res.json({message: 'where login'});
+			const name = req.body.name;
+			const password = req.body.password;
+			if (haveEmpty(name, password)) return whereLogin(res);
 			
 			const dbRequest = await db.query(
 				'SELECT name FROM person WHERE name = $1 AND password = $2 LIMIT 1',
-				[req.body.name, req.body.password]
+				[name, password]
 			);
 			
-			if (dbRequest.rowCount === 1) res.json({
-				token: generateAccessToken(req.body.name, req.body.password)
-			})
-			else return res.status(205).json({message: 'Wrong user or password'});
+			if (dbRequest.rowCount === 1) generateAccessToken(name, password, res)
+			else return wrongAuth(res);
 
 		} catch (error) {
-			console.log(error);
-			return res.status(400).json({message: 'db error', error});
+			return errorFunction(res, error);
 		}
 	}
 

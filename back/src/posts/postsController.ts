@@ -1,5 +1,31 @@
 import fs from "fs";
+import { QueryResult } from "pg";
 import db from "../db";
+import { errorFunction } from "../helpers";
+
+function removeFile(dbRequest: QueryResult, res) {
+	if (!dbRequest.rows[0]) return res.status(206).end('No post');
+	if (dbRequest.rows[0].content_type !== 'text') {
+		fs.rm(dbRequest.rows[0].body, (err) => console.log(err));
+	}
+	return goodAnswer(res);
+};
+
+function goodAnswer(res) {return res.status(200).end()};
+
+function parseIfFile(req) {
+	req.body = Object.assign({},req.body);
+	let contentType: string = 'text';
+	let postTextContent: string = req.body.text;
+	console.log(req.body);
+	
+	if (req.file) {
+		contentType = req.file.mimetype;
+		postTextContent = req.file.path;
+	};
+	return [contentType, postTextContent, req.body.id]
+};
+
 
 class postsController {
 
@@ -8,33 +34,24 @@ class postsController {
 			const dbRequest = await db.query('SELECT * FROM posts');
 			res.json(dbRequest.rows);
 		} catch (error) {
-			console.log(error);
-			return res.status(400).json({message: 'db error', error});
+			return errorFunction(res, error);
 		}
 	}
 
 	async add(req, res) {
 		try {
 			console.log('add');
-			
-			let contentType: string = 'text';
-			let postTextContent: string = Object.assign({},req.body).text;
-			// console.log(JSON.parse(JSON.stringify(req.body)).text);
-			
-			if (req.file) {
-				contentType = req.file.mimetype;
-				postTextContent = req.file.path;
-			};
+
+			const [contentType, postTextContent] = parseIfFile(req);
 
 			db.query(
 				'INSERT INTO posts (user_name, date_created, body, content_type) VALUES ($1, $2, $3, $4)',
 				[req.headers.authorization, new Date(), postTextContent, contentType]
 			);
 
-			res.status(200).end();
+			goodAnswer(res);
 		} catch (error) {
-			console.log(error);
-			return res.status(400).json({message: 'add post error', error});
+			return errorFunction(res, error, 'add post error');
 		}
 	}
 
@@ -43,30 +60,16 @@ class postsController {
 			console.log(req.query);
 			
 			const dbRequest = await db.query('DELETE FROM posts WHERE id = $1 RETURNING *', [req.query.id]);
-			if (!dbRequest.rows[0]) return res.status(206).end('No post');
-			if (dbRequest.rows[0].content_type !== 'text') {
-				fs.rm(dbRequest.rows[0].body, (err) => console.log(err));
-			}
-			return res.status(200).end();
+			removeFile(dbRequest, res);
 			
 		} catch (error) {
-			console.log(error);
-			return res.status(400).json({message: 'db error', error});
+			return errorFunction(res, error);
 		}
 	}
 
 	async patch(req, res) {
 		try {
-			req.body = Object.assign({},req.body);
-			let contentType: string = 'text';
-			let postTextContent: string = req.body.text;
-			const postId: number = req.body.id; // Приходит строа, но ошибки не возникает. Почему?
-			console.log(req.body);
-			
-			if (req.file) {
-				contentType = req.file.mimetype;
-				postTextContent = req.file.path;
-			};
+			const [contentType, postTextContent, postId] = parseIfFile(req);
 
 			const dbRequest = await db.query(
 				`UPDATE posts x SET body = $1, content_type = $2
@@ -75,15 +78,10 @@ class postsController {
 				[postTextContent, contentType, postId, req.headers.authorization]
 			);
 			console.log(dbRequest);
-			
-			if (!dbRequest.rows[0]) return res.status(206).end('No post');
-			if (dbRequest.rows[0].content_type !== 'text') {
-				fs.rm(dbRequest.rows[0].body, (err) => console.log(err));
-			}
-			res.status(200).end();
+			removeFile(dbRequest, res);
+
 		} catch (error) {
-			console.log(error);
-			return res.status(400).json({message: 'db error', error});
+			return errorFunction(res, error);
 		}
 	}
 
