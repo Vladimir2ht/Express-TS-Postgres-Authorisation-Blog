@@ -11,8 +11,8 @@
 				@ok="handleIn"
 				@cancel="handleUp"
 			>
-				<Input ref="user" placeholder="Basic usage" />
-				<InputPassword placeholder="Basic usage" />
+				<Input ref="user" placeholder="Введите имя пользователя" />
+				<InputPassword placeholder="Введите пароль" />
 			</Modal>
 			<Card>
 				<template #title>
@@ -24,7 +24,6 @@
 				<Textarea ref="text" auto-size placeholder="Пост с текстом"/>
 				<Input ref="file" type="file" placeholder="Пост с файлом" :max="1" />
 				<!-- <Input ref="user" type="file" placeholder="Basic usage" :maxlength="1" /> -->
-				<!-- <RadioGroup @change="selectPost" :value="selectedPost"  name="radioGroup"> -->
 				<List
 					@change="selectPost"
 					:pagination="pagination"
@@ -32,14 +31,8 @@
 					item-layout="vertical"
 					size="large"
 				>
-					<!-- <template #footer>
-						<div>
-							footer part
-						</div>
-					</template> -->
 					<template #renderItem="{ item }">
 						<ListItem key="item.id">
-						<!-- <ListItem key="item.id" style="width: 110px"> -->
 							<!-- <template #actions>
 								<span v-for="{ type, text } in actions" :key="type">
 									<component :is="type" style="margin-right: 8px" />
@@ -62,7 +55,6 @@
 						</ListItem>
 					</template>
 				</List>
-				<!-- </RadioGroup> -->
 			</Card>
 		</LayoutContent>
 	</Layout>
@@ -82,7 +74,6 @@
 		Input,
 		InputPassword,
 		Textarea,
-    RadioGroup,
     Radio,
 	} from 'ant-design-vue';
 	import { DeleteOutlined } from '@ant-design/icons-vue';
@@ -124,7 +115,6 @@
 			Input,
 			InputPassword,
 			Textarea,
-			RadioGroup,
 			Radio,
 			DeleteOutlined,
 		},
@@ -185,7 +175,6 @@
 			},
 
 			async selectPost(e: Event & {target:{value: number, type: string}}) {
-				// console.log(e.target);
 				if (e.target.type !== 'radio') return
 				console.log(e.target.value);
 				let post = listData.value.findIndex((post: Post) => post.id == e.target.value)
@@ -267,9 +256,17 @@
 		.ant-layout-content {
 			min-width: 425px;
 			
+			textarea {
+				margin-bottom: 15px;
+			}
+
 			.ant-card-head button {
 				margin-right: 20px;
 			}
 		}
+	}
+
+	.ant-input-password {
+		margin-top: 15px;
 	}
 </style>

@@ -24,9 +24,8 @@
 		color: #000000;
 		height: 100%;
 	
-		// .ant-card-extra { // В компоненте эти стили почему-то не работали.
-		// 	display: flex;
-		// 	flex-direction: row;
-		// }
+		.ant-radio-inner {
+			box-shadow: 0 0 5px 1.5px rgb(67, 67, 255); // creates the shadow
+		}
 	}
 </style>

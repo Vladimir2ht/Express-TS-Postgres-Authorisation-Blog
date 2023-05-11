@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --inspect src/index.ts",
-    "bild": "tsc"
+    "build": "tsc"
   },
   "author": "Vladimir2ht",
   "license": "ISC",
