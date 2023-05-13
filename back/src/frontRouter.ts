@@ -10,17 +10,13 @@ async function fileReader(res, way: string) {
 router.get('/', async (req, res) => {
 	await fileReader(res, '../front/dist/index.html');
 });
-router.get('/js/app.17e94889.js', async (req, res) => {
-	await fileReader(res, '../front/dist/js/app.17e94889.js');
-});
-router.get('/js/chunk-vendors.bd56fda9.js', async (req, res) => {
-	await fileReader(res, '../front/dist/js/chunk-vendors.bd56fda9.js');
-});
-router.get('/css/app.b1daaac1.css', async (req, res) => {
-	await fileReader(res, '../front/dist/css/app.b1daaac1.css');
-});
-router.get('/css/chunk-vendors.2e5e3781.css', async (req, res) => {
-	await fileReader(res, '../front/dist/css/chunk-vendors.2e5e3781.css');
-});
+
+['/js/app.8b38db7e.js',
+	'/js/chunk-vendors.7039a6a3.js',
+	'/css/app.16a5b42b.css',
+	'/css/chunk-vendors.2e5e3781.css',
+].forEach(doc => router.get(doc, async (req, res) => {
+	await fileReader(res, '../front/dist' + doc);
+}));
 
 export default router
