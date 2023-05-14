@@ -52,7 +52,17 @@
 									{{ item.user_name }}
 								</template>
 							</ListItemMeta>
-							{{ item.body }}
+							<span v-if="item.content_type === 'text'">
+								{{ item.body }}
+							</span>
+							<img v-else-if="item.content_type.includes('image')" :src="address + item.body">
+							<!-- <video controls="controls" poster="video/duel.jpg"> -->
+							<video v-else-if="item.content_type.includes('video')" controls="controls">
+								<source :src="address + item.body">
+							</video>
+							<audio controls="controls" v-else-if="item.content_type.includes('audio')">
+								<source :src="address + item.body">
+							</audio>
 						</ListItem>
 					</template>
 				</List>
@@ -124,6 +134,7 @@
 				sign_up: 'Регистрация',
 				sign_in: 'Авторизация',
 				small: 'small',
+				address: ' http://vladimir2ht.ddns.net:4000/',
 			};
 		},
 		setup() {

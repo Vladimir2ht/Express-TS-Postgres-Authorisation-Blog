@@ -11,7 +11,9 @@ router.get('/', async (req, res) => {
 	await fileReader(res, '../front/dist/index.html');
 });
 
-['/js/app.8b38db7e.js',
+[
+	'/favicon.ico',
+	'/js/app.8b38db7e.js',
 	'/js/chunk-vendors.7039a6a3.js',
 	'/css/app.16a5b42b.css',
 	'/css/chunk-vendors.2e5e3781.css',
