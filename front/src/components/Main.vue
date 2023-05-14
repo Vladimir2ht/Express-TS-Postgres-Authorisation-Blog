@@ -51,7 +51,17 @@
 									{{ item.user_name }}
 								</template>
 							</ListItemMeta>
-							{{ item.body }}
+							<span v-if="item.content_type === 'text'">
+								{{ item.body }}
+							</span>
+							<img v-else-if="item.content_type.includes('image')" :src="item.body">
+							<!-- <video controls="controls" poster="video/duel.jpg"> -->
+							<video v-else-if="item.content_type.includes('video')" controls="controls">
+								<source :src="item.body">
+							</video>
+							<audio controls="controls" v-else-if="item.content_type.includes('audio')">
+								<source :src="item.body">
+							</audio>
 						</ListItem>
 					</template>
 				</List>
