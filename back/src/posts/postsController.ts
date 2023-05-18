@@ -1,20 +1,27 @@
+import { Request, Response } from "express";
 import fs from "fs";
 import { QueryResult } from "pg";
 import db from "../db";
 import { errorFunction } from "../helpers";
+import { 
+	ConfirmAuthRequest,
+	ErrorMessageObject,
+	RequestBodyTextID,
+	RequestQueryIDWithAuth
+} from "../types";
 
-function removeFile(dbRequest: QueryResult, res) {
+function removeFile(dbRequest: QueryResult, res: Response) {
 	if (!dbRequest.rows[0]) return res.status(206).end('No post');
 	if (dbRequest.rows[0].content_type !== 'text') {
 		fs.rm(dbRequest.rows[0].body, (err) => console.log(err));
 	}
-	return goodAnswer(res);
+	 goodAnswer(res);
 };
 
-function goodAnswer(res) {return res.status(200).end()};
+function goodAnswer(res: Response) {res.status(200).end()};
 
-function parseIfFile(req) {
-	req.body = Object.assign({},req.body);
+function parseIfFile(req: RequestBodyTextID): [string, string, number] {
+	req.body = Object.assign({}, req.body);
 	let contentType: string = 'text';
 	let postTextContent: string = req.body.text;
 	console.log(req.body);
@@ -29,16 +36,16 @@ function parseIfFile(req) {
 
 class postsController {
 
-	async get(req, res) {
+	async get(req: Request, res: Response<ErrorMessageObject | any[]> ) {
 		try {
 			const dbRequest = await db.query('SELECT * FROM posts');
 			res.json(dbRequest.rows);
 		} catch (error) {
-			return errorFunction(res, error);
+			errorFunction(res, error);
 		}
 	}
 
-	async add(req, res) {
+	async add(req: ConfirmAuthRequest, res: Response) {
 		try {
 			console.log('add');
 
@@ -55,7 +62,7 @@ class postsController {
 		}
 	}
 
-	async delete(req, res) {
+	async delete(req: RequestQueryIDWithAuth, res: Response) {
 		try {
 			console.log(req.query);
 			
@@ -67,7 +74,7 @@ class postsController {
 		}
 	}
 
-	async patch(req, res) {
+	async patch(req: ConfirmAuthRequest, res: Response) {
 		try {
 			const [contentType, postTextContent, postId] = parseIfFile(req);
 

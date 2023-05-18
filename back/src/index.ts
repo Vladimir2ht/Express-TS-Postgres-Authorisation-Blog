@@ -9,10 +9,7 @@ const app = express(),
 			host = '192.168.0.100',
 			port = 4000;
 
-function resWhenNo(res) {
-	res.status(404).type('text/plain');
-	res.send('Not found');	
-};
+function resWhenNo(res) {res.status(404).send('Not found')};
 
 app.use(cors());
 app.use(express.json());
