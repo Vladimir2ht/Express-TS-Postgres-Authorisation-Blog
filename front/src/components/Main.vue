@@ -33,13 +33,6 @@
 				>
 					<template #renderItem="{ item }">
 						<ListItem key="item.id">
-						<!-- <ListItem key="item.id" style="width: 110px"> -->
-							<!-- <template #actions>
-								<span v-for="{ type, text } in actions" :key="type">
-									<component :is="type" style="margin-right: 8px" />
-									{{ text }}
-								</span>
-							</template> -->
 							<template #extra v-if="item.user_name === login">
 								<!-- <Radio :value="item.id" :checked="item.id === selectedPost"/> -->
 								<Radio :value="item.id" :checked="item.checked"/>
@@ -56,7 +49,6 @@
 								{{ item.body }}
 							</span>
 							<img v-else-if="item.content_type.includes('image')" :src="address + item.body">
-							<!-- <video controls="controls" poster="video/duel.jpg"> -->
 							<video v-else-if="item.content_type.includes('video')" controls="controls">
 								<source :src="address + item.body">
 							</video>
@@ -106,6 +98,7 @@
 	};
 
 	let token: string;
+	const Origin = 'vladimir2ht.ddns.net:4000';
 	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
 	const selectedPost = ref<number>(0);
@@ -156,7 +149,7 @@
 			async getPosts() {
 				let response = await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
 					method: 'GET',
-					headers: { 'Origin': 'vladimir2ht.ddns.net:4000' }
+					headers: { Origin }
 				});
 				listData.value = (await response.json())
 					.map((post: Post | Omit<Post, 'chesked'>): Post => {
@@ -177,7 +170,7 @@
 				await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
 					method: change ? 'PATCH' : 'PUT',
 					headers: {
-						Origin: 'vladimir2ht.ddns.net:4000',
+						Origin,
 						Authorization: 'Bearer ' + token,
 					},
 					body: formData
@@ -202,13 +195,12 @@
 				await fetch('http://vladimir2ht.ddns.net:4000/posts?id=' + id, {
 					method: 'delete',
 					headers: {
-						Origin: 'vladimir2ht.ddns.net:4000',
+						Origin,
 						Authorization: 'Bearer ' + token,
 					},
 				});
 				
-				// убрать
-				await this.getPosts();
+				await this.getPosts(); // убрать
 			},
 
 			async authRequest(action: string) {
@@ -230,7 +222,7 @@
 					method: 'post',
 					body: JSON.stringify(authData),
 					headers: { 
-						Origin: 'http://localhost:8080/',
+						Origin,
 						"Content-type":  "application/json",
 					},
 				}).then(res => {
@@ -271,6 +263,15 @@
 			textarea {
 				margin-bottom: 15px;
 			}
+
+			.ant-card {
+				min-width: 504px;
+				margin-bottom: 15px;
+			}
+
+			// img, video {
+			// 	min-width: 100%;
+			// }
 
 			.ant-card-head button {
 				margin-right: 20px;

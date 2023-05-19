@@ -27,5 +27,10 @@
 		.ant-radio-inner {
 			box-shadow: 0 0 5px 1.5px rgb(67, 67, 255); // creates the shadow
 		}
+		
+		.ant-list-item-extra {
+			min-width: 48px;
+			margin: 0 0 0 24px;
+		}
 	}
 </style>

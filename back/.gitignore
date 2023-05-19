@@ -3,7 +3,8 @@
 
 # production
 /build
-upload/*
+/upload
+# /upload/*
 
 # misc
 .env.local
