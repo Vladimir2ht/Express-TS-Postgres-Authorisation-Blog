@@ -34,6 +34,8 @@
 									<template #icon><DeleteOutlined /></template>
 								</Button>
 							</template>
+							<!-- <ListItemMeta :description="typeOf (item.date_created)"> -->
+							<!-- <ListItemMeta :description="item.date_created.toLocaleDateString()"> -->
 							<ListItemMeta :description="item.date_created">
 								<template #title>
 									{{ item.user_name }}
@@ -266,9 +268,8 @@
 				margin-bottom: 15px;
 			}
 
-			img,
-			video {
-				min-width: 100%;
+			img, video {
+				max-width: 100%;
 			}
 
 			.ant-card-head button {

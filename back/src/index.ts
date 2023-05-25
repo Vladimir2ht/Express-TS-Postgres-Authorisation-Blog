@@ -11,7 +11,7 @@ const app = express(),
 
 function resWhenNo(res) {res.status(404).send('Not found')};
 
-app.use(cors());
+app.use(cors()); // Отключение cors нужно только в тесовом режиме.
 app.use(express.json());
 
 app.use('/posts', postsRouter);
