@@ -123,6 +123,7 @@
 				sign_up: 'Регистрация',
 				sign_in: 'Авторизация',
 				small: 'small',
+				// address: 'http://192.168.0.100:4000/',
 				address: 'http://vladimir2ht.ddns.net:4000/',
 			};
 		},
@@ -143,7 +144,8 @@
 		},
 		methods: {
 			async getPosts() {
-				let response = await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
+				let response = await fetch(this.address + 'posts/', {
+				// let response = await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
 					method: 'GET',
 					headers: { Origin },
 				});
@@ -162,7 +164,7 @@
 					formData.append('id', listData.value[selectedPost.value].id.toString());
 				}
 
-				await fetch('http://vladimir2ht.ddns.net:4000/posts/', {
+				await fetch(this.address + 'posts/', {
 					method: change ? 'PATCH' : 'PUT',
 					headers: {
 						Origin,
@@ -187,8 +189,8 @@
 			},
 
 			async deletePost(id: number) {
-				await fetch('http://vladimir2ht.ddns.net:4000/posts?id=' + id, {
-					method: 'delete',
+				await fetch(this.address + 'posts?id=' + id, {
+					method: 'DELETE',
 					headers: {
 						Origin,
 						Authorization: 'Bearer ' + token,
@@ -213,8 +215,8 @@
 				if (!(authData.name && authData.password)) return (confirmLoading.value = false);
 				console.log(authData);
 
-				const responseData = await fetch('http://vladimir2ht.ddns.net:4000/auth/' + action, {
-					method: 'post',
+				const responseData = await fetch(this.address + 'auth/' + action, {
+					method: 'POST',
 					body: JSON.stringify(authData),
 					headers: {
 						Origin,
