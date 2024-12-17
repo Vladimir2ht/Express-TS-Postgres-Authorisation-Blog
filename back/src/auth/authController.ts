@@ -50,6 +50,8 @@ class authController {
 	}
 
 	async login(req: RequestWithAuth, res: Response) {
+		console.log("login");
+		
 		try {
 			const name = req.body.name;
 			const password = req.body.password;

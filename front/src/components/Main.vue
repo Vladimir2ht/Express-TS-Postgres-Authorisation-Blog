@@ -94,7 +94,7 @@
 	};
 
 	let token: string;
-	const Origin = 'vladimir2ht.ddns.net:4000';
+	const Origin = 'localhost:4000';
 	const listData = ref<Post[]>([]);
 	const login = ref<string>('');
 	const selectedPost = ref<number>(0);
@@ -123,8 +123,8 @@
 				sign_up: 'Регистрация',
 				sign_in: 'Авторизация',
 				small: 'small',
-				// address: 'http://192.168.0.100:4000/',
-				address: 'http://vladimir2ht.ddns.net:4000/',
+				address: 'http://localhost:4000/',
+				// address: 'http://vladimir2ht.ddns.net:4000/',
 			};
 		},
 		setup() {

@@ -1,0 +1,12 @@
+services:
+  blog-db:
+    container_name: 'blog-db'
+    image: 'postgres:16'
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: blog
+      POSTGRES_PASSWORD: pass23
+    ports:
+      - "5432:5432"
+    volumes:
+      - /db/blog:/var/lib/postgresql/data

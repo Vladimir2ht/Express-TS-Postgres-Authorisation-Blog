@@ -1,11 +1,11 @@
 import { Client } from "pg";
 
 const client = new Client({
-  host: '192.168.99.100',
+  host: 'localhost',
   port: 5432,
   database: 'postgres',
-  user: 'admin',
-  password: 'root',
+  user: 'blog',
+  password: 'pass23',
 });
 
 (async () => {
@@ -25,7 +25,7 @@ const client = new Client({
     FOREIGN KEY (user_name) REFERENCES person (name)
   )`);
   
-  console.log('db_work');
+  console.log('db work');
   
   // await client.end();
 })()
